@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.deanx"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 
 repositories {
     mavenCentral()
@@ -38,4 +38,5 @@ tasks.jar {
 
 tasks.shadowJar {
     minimize()
+    archiveClassifier.set("")
 }
