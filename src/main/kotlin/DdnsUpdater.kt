@@ -11,6 +11,12 @@ class DdnsUpdater {
 
     fun updateDns(ip: String) {
         val recordId = getRecordId()
+        val dnsRecord = DnsRecord(recordId, ip, Config.domain)
+        if (recordId == null) {
+            createNewRecord(dnsRecord)
+        } else {
+            updateRecord(dnsRecord, recordId)
+        }
     }
 
     private fun getRecordId(): String? {
@@ -36,17 +42,72 @@ class DdnsUpdater {
         return record?.id
     }
 
-    class DnsRecord {
-        val id: String = ""
-        val content: String = ""
-        val name: String = ""
-        val proxied: Boolean = false
-        val type: String = "A"
-        val ttl: Int = 1
+    private fun createNewRecord(record: DnsRecord) {
+        val url = baseUrl.format(Config.zone_id, "")
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("X-Auth-Email", Config.api_email)
+            .header("Authorization", "Bearer ${Config.api_key}")
+            .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(record)))
+            .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() != 200) {
+            // Log error
+            return
+        }
+
+        val dnsRecords = gson.fromJson(response.body(), DnsRecordDetailResponse::class.java)
+        if (!dnsRecords.success) {
+            // Log error
+            return
+        }
+        if (dnsRecords.result.content != record.content || dnsRecords.result.name != record.name) {
+            // Log error
+            return
+        }
     }
 
-    class DnsRecordListResponse {
-        val success: Boolean = false
-        val result: List<DnsRecord> = emptyList()
+    private fun updateRecord(record: DnsRecord, recordId: String) {
+        val url = baseUrl.format(Config.zone_id, recordId)
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("X-Auth-Email", Config.api_email)
+            .header("Authorization", "Bearer ${Config.api_key}")
+            .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(record)))
+            .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() != 200) {
+            // Log error
+            return
+        }
+
+        val dnsRecords = gson.fromJson(response.body(), DnsRecordDetailResponse::class.java)
+        if (!dnsRecords.success) {
+            // Log error
+            return
+        }
+        if (dnsRecords.result != record) {
+            // Log error
+            return
+        }
     }
+
+    data class DnsRecord(
+        val id: String? = null,
+        val content: String = "",
+        val name: String = "",
+        val proxied: Boolean = false,
+        val type: String = "A",
+        val ttl: Int = 1
+    )
+
+    data class DnsRecordListResponse(
+        val success: Boolean = false,
+        val result: List<DnsRecord> = emptyList()
+    )
+
+    data class DnsRecordDetailResponse(
+        val success: Boolean = false,
+        val result: DnsRecord = DnsRecord()
+    )
 }
