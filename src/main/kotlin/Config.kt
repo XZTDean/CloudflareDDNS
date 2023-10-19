@@ -11,16 +11,14 @@ object Config {
 
     fun loadConfig(): Boolean {
         if (configFile.exists()) {
-            with(configFile.inputStream()) {
+            configFile.inputStream().use {
                 try {
                     val newConfig = Properties()
-                    newConfig.load(this)
+                    newConfig.load(it)
                     config.clear()
                     config.putAll(newConfig)
                 } catch (_: IOException) {
                     // Log error
-                } finally {
-                    close()
                 }
             }
         }
@@ -32,17 +30,15 @@ object Config {
     }
 
     private fun saveDefaultConfig() {
-        with(configFile.outputStream()) {
+        configFile.outputStream().use {
             try {
                 fields.forEach {
                     val value = config.getProperty(it, "")
                     config.setProperty(it, value)
                 }
-                config.store(this, null)
+                config.store(it, null)
             } catch (_: IOException) {
                 // Log error
-            } finally {
-                close()
             }
         }
     }
