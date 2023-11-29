@@ -31,7 +31,12 @@ class IpChecker {
             return ip
         }
 
-        ip = ipResponse.query ?: ""
+        val newIp = ipResponse.query ?: ""
+        if (newIp != ip) {
+            Logger.log("IP address changed from $ip to $newIp")
+            Logger.saveLog()
+            ip = newIp
+        }
         return ip
     }
 

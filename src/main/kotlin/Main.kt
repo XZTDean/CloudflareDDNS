@@ -1,7 +1,12 @@
 fun main() {
-    val ipChecker = IpChecker()
-    println(ipChecker.getIp())
     Config.loadConfig()
+    val ipChecker = IpChecker()
     val updater = DdnsUpdater()
-    updater.updateDns(ipChecker.getIp())
+    while (true) {
+        val ip = ipChecker.getIp()
+        if (ip.isNotBlank()) {
+            updater.updateDns(ip)
+        }
+        Thread.sleep(1000*60*5) // 5 minutes
+    }
 }
