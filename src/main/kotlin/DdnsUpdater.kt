@@ -28,13 +28,21 @@ class DdnsUpdater {
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() != 200) {
-            // Log error
+            Logger.log("Failed to get DNS record ID")
+            Logger.log("API status code: ${response.statusCode()}")
+            Logger.log("API response: ${response.body()}")
+            Logger.saveLog()
             return ""
         }
 
         val dnsRecords = gson.fromJson(response.body(), DnsRecordListResponse::class.java)
         if (!dnsRecords.success) {
-            // Log error
+            Logger.log("Failed to get DNS record ID")
+            Logger.log("API errors:")
+            dnsRecords.errors.forEach {
+                Logger.log(" ${it.code}: ${it.message}")
+            }
+            Logger.saveLog()
             return ""
         }
 
@@ -52,17 +60,28 @@ class DdnsUpdater {
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() != 200) {
-            // Log error
+            Logger.log("Failed to create new DNS record")
+            Logger.log("API status code: ${response.statusCode()}")
+            Logger.log("API response: ${response.body()}")
+            Logger.saveLog()
             return
         }
 
         val dnsRecords = gson.fromJson(response.body(), DnsRecordDetailResponse::class.java)
         if (!dnsRecords.success) {
-            // Log error
+            Logger.log("Failed to create new DNS record")
+            Logger.log("API errors:")
+            dnsRecords.errors.forEach {
+                Logger.log("  ${it.code}: ${it.message}")
+            }
+            Logger.saveLog()
             return
         }
         if (dnsRecords.result.content != record.content || dnsRecords.result.name != record.name) {
-            // Log error
+            Logger.log("Failed to create new DNS record")
+            Logger.log("Created record does not match with the request")
+            Logger.log("Result: ${dnsRecords.result}")
+            Logger.saveLog()
             return
         }
     }
@@ -77,17 +96,28 @@ class DdnsUpdater {
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() != 200) {
-            // Log error
+            Logger.log("Failed to update DNS record")
+            Logger.log("API status code: ${response.statusCode()}")
+            Logger.log("API response: ${response.body()}")
+            Logger.saveLog()
             return
         }
 
         val dnsRecords = gson.fromJson(response.body(), DnsRecordDetailResponse::class.java)
         if (!dnsRecords.success) {
-            // Log error
+            Logger.log("Failed to update DNS record")
+            Logger.log("API errors:")
+            dnsRecords.errors.forEach {
+                Logger.log("  ${it.code}: ${it.message}")
+            }
+            Logger.saveLog()
             return
         }
         if (dnsRecords.result != record) {
-            // Log error
+            Logger.log("Failed to update DNS record")
+            Logger.log("Updated record does not match with the request")
+            Logger.log("Result: ${dnsRecords.result}")
+            Logger.saveLog()
             return
         }
     }
@@ -103,11 +133,18 @@ class DdnsUpdater {
 
     data class DnsRecordListResponse(
         val success: Boolean = false,
-        val result: List<DnsRecord> = emptyList()
+        val result: List<DnsRecord> = emptyList(),
+        val errors: List<Error> = emptyList()
     )
 
     data class DnsRecordDetailResponse(
         val success: Boolean = false,
-        val result: DnsRecord = DnsRecord()
+        val result: DnsRecord = DnsRecord(),
+        val errors: List<Error> = emptyList()
+    )
+
+    data class Error(
+        val code: Int = 0,
+        val message: String = ""
     )
 }
