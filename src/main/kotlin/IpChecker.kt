@@ -15,13 +15,19 @@ class IpChecker {
     fun getIp(): String {
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() != 200) {
-            // Log error
+            Logger.log("Failed to get IP address")
+            Logger.log("API status code: ${response.statusCode()}")
+            Logger.log("API response: ${response.body()}")
+            Logger.saveLog()
             return ip
         }
 
         val ipResponse = gson.fromJson(response.body(), IpResponse::class.java)
         if (ipResponse.status != "success") {
-            // Log error
+            Logger.log("Failed to get IP address")
+            Logger.log("API status: ${ipResponse.status}")
+            Logger.log("API message: ${ipResponse.message}")
+            Logger.saveLog()
             return ip
         }
 

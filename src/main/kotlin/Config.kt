@@ -1,5 +1,4 @@
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.IllegalStateException
 import java.util.Properties
@@ -18,7 +17,8 @@ object Config {
                     config.clear()
                     config.putAll(newConfig)
                 } catch (_: IOException) {
-                    // Log error
+                    Logger.log("Failed to load config file")
+                    Logger.saveLog()
                 }
             }
         }
@@ -38,7 +38,8 @@ object Config {
                 }
                 config.store(it, null)
             } catch (_: IOException) {
-                // Log error
+                Logger.log("Failed to save default config file")
+                Logger.saveLog()
             }
         }
     }
