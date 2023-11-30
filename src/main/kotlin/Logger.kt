@@ -8,6 +8,11 @@ object Logger {
     private val log = mutableListOf<String>()
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss O")
 
+    init {
+        if (!logFile.parentFile.exists()) {
+            logFile.parentFile.mkdirs()
+        }
+    }
 
     fun log(message: String) {
         val timeString = ZonedDateTime.now().format(formatter)
@@ -19,7 +24,9 @@ object Logger {
             return
         }
         try {
-            logFile.appendText(log.joinToString("\n"))
+            val outputLogs = log.joinToString("\n") + "\n"
+            logFile.appendText(outputLogs)
+            print(outputLogs)
             log.clear()
         } catch (_: IOException) {
             println("Failed to write to log file")
