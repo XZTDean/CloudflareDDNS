@@ -12,6 +12,9 @@ class DdnsUpdater {
 
     fun updateDns(ip: String) {
         val recordId = getRecordId()
+        if (recordId == "") { // recordId is empty means there is an error
+            return
+        }
         val dnsRecord = DnsRecord(recordId, ip, Config.domain)
         if (recordId == null) {
             createNewRecord(dnsRecord)
