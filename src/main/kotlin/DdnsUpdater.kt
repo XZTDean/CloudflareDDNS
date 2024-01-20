@@ -123,11 +123,17 @@ class DdnsUpdater {
         }
     }
 
-    private fun sendRequest(request: HttpRequest?): HttpResponse<String> {
+    private fun sendRequest(request: HttpRequest, retry: Int = 2): HttpResponse<String> {
         val response: HttpResponse<String> = try {
             client.send(request, HttpResponse.BodyHandlers.ofString())
         } catch (e: IOException) {
-            client.send(request, HttpResponse.BodyHandlers.ofString())
+            if (retry > 0) {
+                Logger.log("Failed to send request to ${request.uri().toASCIIString()}, retrying...")
+                Logger.saveLog()
+                sendRequest(request, retry - 1)
+            } else {
+                throw e
+            }
         }
         return response
     }
