@@ -1,4 +1,5 @@
 import com.google.gson.Gson
+import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -26,7 +27,7 @@ class DdnsUpdater {
             .header("X-Auth-Email", Config.api_email)
             .header("Authorization", "Bearer ${Config.api_key}")
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val response = sendRequest(request)
         if (response.statusCode() != 200) {
             Logger.log("Failed to get DNS record ID")
             Logger.log("API status code: ${response.statusCode()}")
@@ -58,7 +59,7 @@ class DdnsUpdater {
             .header("Authorization", "Bearer ${Config.api_key}")
             .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(record)))
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val response = sendRequest(request)
         if (response.statusCode() != 200) {
             Logger.log("Failed to create new DNS record")
             Logger.log("API status code: ${response.statusCode()}")
@@ -94,7 +95,7 @@ class DdnsUpdater {
             .header("Authorization", "Bearer ${Config.api_key}")
             .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(record)))
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val response = sendRequest(request)
         if (response.statusCode() != 200) {
             Logger.log("Failed to update DNS record")
             Logger.log("API status code: ${response.statusCode()}")
@@ -120,6 +121,15 @@ class DdnsUpdater {
             Logger.saveLog()
             return
         }
+    }
+
+    private fun sendRequest(request: HttpRequest?): HttpResponse<String> {
+        val response: HttpResponse<String> = try {
+            client.send(request, HttpResponse.BodyHandlers.ofString())
+        } catch (e: IOException) {
+            client.send(request, HttpResponse.BodyHandlers.ofString())
+        }
+        return response
     }
 
     data class DnsRecord(
