@@ -1,3 +1,4 @@
+import Utils.send
 import com.google.gson.Gson
 import java.net.URI
 import java.net.http.HttpClient
@@ -13,7 +14,7 @@ class IpChecker {
     private val gson = Gson()
 
     fun getIp(): String {
-        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString(), 2)
         if (response.statusCode() != 200) {
             Logger.log("Failed to get IP address")
             Logger.log("API status code: ${response.statusCode()}")

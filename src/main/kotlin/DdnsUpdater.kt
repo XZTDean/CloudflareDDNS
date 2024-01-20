@@ -1,5 +1,5 @@
+import Utils.send
 import com.google.gson.Gson
-import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -123,21 +123,6 @@ class DdnsUpdater {
             Logger.log("Result: ${dnsRecords.result}")
             Logger.saveLog()
             return
-        }
-    }
-
-    private fun HttpClient.send(request: HttpRequest, bodyHandler: HttpResponse.BodyHandler<String>,
-                                retry: Int): HttpResponse<String> {
-        return try {
-            send(request, bodyHandler)
-        } catch (e: IOException) {
-            if (retry > 0) {
-                Logger.log("Failed to send request to ${request.uri().toASCIIString()}, retrying...")
-                Logger.saveLog()
-                send(request, bodyHandler, retry - 1)
-            } else {
-                throw e
-            }
         }
     }
 
