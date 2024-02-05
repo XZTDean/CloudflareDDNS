@@ -1,5 +1,6 @@
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -10,9 +11,9 @@ import java.time.format.DateTimeFormatter
 
 object Logger {
     private val logFile = File("log/ddns_client.log")
-    private val log = mutableListOf<String>()
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss O")
     private val logChannel = Channel<String>(64)
+    private lateinit var saveLogJob: Job
 
     init {
         if (!logFile.parentFile.exists()) {
@@ -31,12 +32,17 @@ object Logger {
     }
 
     fun close() {
-        logChannel.close()
+        runBlocking {
+            logChannel.close()
+            if (::saveLogJob.isInitialized) {
+                saveLogJob.join()
+            }
+        }
     }
 
     private fun autoSaveLog() {
         val scope = CoroutineScope(Dispatchers.IO)
-        scope.launch {
+        saveLogJob = scope.launch {
             for (log in logChannel) {
                 try {
                     logFile.appendText("$log\n")
