@@ -35,7 +35,6 @@ class DdnsUpdater {
             Logger.log("Failed to get DNS record ID")
             Logger.log("API status code: ${response.statusCode()}")
             Logger.log("API response: ${response.body()}")
-            Logger.saveLog()
             return ""
         }
 
@@ -46,7 +45,6 @@ class DdnsUpdater {
             dnsRecords.errors.forEach {
                 Logger.log(" ${it.code}: ${it.message}")
             }
-            Logger.saveLog()
             return ""
         }
 
@@ -67,7 +65,6 @@ class DdnsUpdater {
             Logger.log("Failed to create new DNS record")
             Logger.log("API status code: ${response.statusCode()}")
             Logger.log("API response: ${response.body()}")
-            Logger.saveLog()
             return
         }
 
@@ -78,14 +75,12 @@ class DdnsUpdater {
             dnsRecords.errors.forEach {
                 Logger.log("  ${it.code}: ${it.message}")
             }
-            Logger.saveLog()
             return
         }
         if (dnsRecords.result.content != record.content || dnsRecords.result.name != record.name) {
             Logger.log("Failed to create new DNS record")
             Logger.log("Created record does not match with the request")
             Logger.log("Result: ${dnsRecords.result}")
-            Logger.saveLog()
             return
         }
     }
@@ -103,7 +98,6 @@ class DdnsUpdater {
             Logger.log("Failed to update DNS record")
             Logger.log("API status code: ${response.statusCode()}")
             Logger.log("API response: ${response.body()}")
-            Logger.saveLog()
             return
         }
 
@@ -114,14 +108,12 @@ class DdnsUpdater {
             dnsRecords.errors.forEach {
                 Logger.log("  ${it.code}: ${it.message}")
             }
-            Logger.saveLog()
             return
         }
         if (dnsRecords.result != record) {
             Logger.log("Failed to update DNS record")
             Logger.log("Updated record does not match with the request")
             Logger.log("Result: ${dnsRecords.result}")
-            Logger.saveLog()
             return
         }
     }

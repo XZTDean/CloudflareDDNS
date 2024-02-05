@@ -19,7 +19,6 @@ class IpChecker {
             Logger.log("Failed to get IP address")
             Logger.log("API status code: ${response.statusCode()}")
             Logger.log("API response: ${response.body()}")
-            Logger.saveLog()
             return ip
         }
 
@@ -28,14 +27,12 @@ class IpChecker {
             Logger.log("Failed to get IP address")
             Logger.log("API status: ${ipResponse.status}")
             Logger.log("API message: ${ipResponse.message}")
-            Logger.saveLog()
             return ip
         }
 
         val newIp = ipResponse.query ?: ""
         if (newIp != ip) {
             Logger.log("IP address changed from $ip to $newIp")
-            Logger.saveLog()
             ip = newIp
         }
         return ip

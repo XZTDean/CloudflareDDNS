@@ -18,7 +18,6 @@ object Config {
                     config.putAll(newConfig)
                 } catch (_: IOException) {
                     Logger.log("Failed to load config file")
-                    Logger.saveLog()
                 }
             }
         }
@@ -39,7 +38,6 @@ object Config {
                 config.store(it, null)
             } catch (_: IOException) {
                 Logger.log("Failed to save default config file")
-                Logger.saveLog()
             }
         }
     }

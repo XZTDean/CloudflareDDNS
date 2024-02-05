@@ -12,7 +12,6 @@ object Utils {
         } catch (e: IOException) {
             if (retry > 0) {
                 Logger.log("Failed to send request to ${request.uri().toASCIIString()}, retrying...")
-                Logger.saveLog()
                 send(request, bodyHandler, retry - 1)
             } else {
                 throw e
