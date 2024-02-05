@@ -16,7 +16,9 @@ object Logger {
 
     fun log(message: String) {
         val timeString = ZonedDateTime.now().format(formatter)
-        log.add("[$timeString] $message")
+        message.split("\n").forEach {
+            log.add("[$timeString] $it")
+        }
     }
 
     fun saveLog() {
